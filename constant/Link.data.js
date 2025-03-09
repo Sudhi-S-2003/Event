@@ -16,6 +16,11 @@ const LinkData = [
     },
     {
       id: 4,
+      title: "Dashboard",
+      path: "/dashboard",
+    },
+    {
+      id: 5,
       title: "Contact",
       path: "/contact",
     },

@@ -1,0 +1,17 @@
+"use client";
+import { FC } from "react";
+import EventCard from "./EventCard";
+import EventData  from "@/constant/Event.data"
+
+
+const EventList: FC = () => {
+  return (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {EventData.map((event, index) => (
+        <EventCard key={index} {...event} />
+      ))}
+    </div>
+  );
+};
+
+export default EventList;

@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { authenticateUser } from "@/lib/auth";
 import { CreateEvent } from "@/helper/event/CreateEvent";
 import { GetUserEvent } from "@/helper/event/GetUserEvent";
-import { UpdateEvent } from "@/helper/event/UpdateEvent"; // ✅ Fixed import
+import { UpdateEvent } from "@/helper/event/UpdateEvent"; 
 import { GetUserEventByType } from "@/helper/event/GetUserEventByType";
 
 // 🔹 Universal function to handle authentication and response
@@ -14,16 +14,21 @@ async function handleRequest(req: NextRequest, method: string) {
     if (authResult instanceof NextResponse) {
       return authResult; // Return unauthorized response if authentication fails
     }
+    const { userId }: { userId: unknown } = authResult; // Destructuring with 'unknown' type
 
-    const { userId } = authResult; // ✅ Correct destructuring
+    // Check if userId exists and is a string
+    if (typeof userId !== 'string') {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
 
     switch (method) {
       case "POST":
         return await CreateEvent(userId, req); // ✅ Create event
       case "GET":
-        const eventType= req.nextUrl.searchParams.get("type"); // Get event ID from query params
-        if(eventType ) {
-          return await GetUserEventByType(userId, req,eventType); // ✅ Get user events
+        const eventType = req.nextUrl.searchParams.get("type"); // Get event ID from query params
+        if (eventType) {
+          return await GetUserEventByType(userId, req, eventType); // ✅ Get user events
 
         }
         return await GetUserEvent(userId, req); // ✅ Get user events
@@ -61,6 +66,6 @@ export async function GET(req: NextRequest) {
   return handleRequest(req, "GET");
 }
 
-export async function PATCH(req: NextRequest) { 
+export async function PATCH(req: NextRequest) {
   return handleRequest(req, "PATCH");
 }

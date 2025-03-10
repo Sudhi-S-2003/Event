@@ -1,29 +1,26 @@
-import UserModel from "@/models/User";
-import connectDB from "@/lib/db";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import UserModel from "@/models/User";
+import connectDB from "@/lib/db";
 
 export const authenticateUser = async (req: NextRequest) => {
   try {
     await connectDB();
 
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    // 🔹 Get session token from cookies
+    const sessionToken = req.cookies.get("token")?.value;
+    if (!sessionToken) {
       return NextResponse.json({ error: "🚫 Unauthorized access!" }, { status: 401 });
     }
 
-    const sessionToken = authHeader.split(" ")[1];
-    if (!sessionToken) {
-      return NextResponse.json({ error: "🚫 Invalid token!" }, { status: 401 });
-    }
-
+    // 🔹 Find user with the session token
     const user = await UserModel.findOne({ sessionToken });
 
     if (!user) {
       return NextResponse.json({ error: "🚫 Invalid session!" }, { status: 401 });
     }
 
-    // Check if session is expired
+    // 🔹 Check if session is expired
     const sessionAge = Date.now() - new Date(user.sessionCreatedAt || 0).getTime();
     const oneDayInMs = 24 * 60 * 60 * 1000; 
 

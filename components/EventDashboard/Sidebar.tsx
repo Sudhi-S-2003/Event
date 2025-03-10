@@ -9,7 +9,7 @@ interface SidebarProps {
 }
 
 const Sidebar: FC<SidebarProps> = ({ setView }) => {
-  const [activeTab, setActiveTab] = useState("list");
+  const [activeTab, setActiveTab] = useState("upcoming");
   const [mobileOpen, setMobileOpen] = useState(false); // State for mobile menu
 
   const handleTabClick = (view: string) => {

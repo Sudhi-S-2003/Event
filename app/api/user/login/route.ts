@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import UserModel, { IUser } from "@/models/User";
-import PhoneModel, { IPhone } from "@/models/Phone";
+import PhoneModel from "@/models/Phone";
 import methodNotAllowed from "@/helper/methodNotAllowed";
 import { comparePassword } from "@/helper/passwordHelper";
 import crypto from "crypto";

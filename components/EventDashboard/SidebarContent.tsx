@@ -26,13 +26,17 @@ const SidebarContent = ({
 
       toast.success("✅ Logged out successfully!");
       router.push("/login");
-    } catch (error: any) {
-      toast.error(error.message || "❌ Logout failed. Try again!");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "❌ Logout failed. Try again!");
+      } else {
+        toast.error("❌ Logout failed. Try again!");
+      }
     }
   };
 
   const tabs = [
-    { name: "upcoming Events", key: "upcoming" },
+    { name: "Upcoming Events", key: "upcoming" },
     { name: "Today's Events", key: "today" },
     { name: "Past Events", key: "past" },
     { name: "Add Event", key: "add" },

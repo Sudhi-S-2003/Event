@@ -45,7 +45,7 @@ const EventForm: FC = () => {
       } else {
         toast.error("Failed to add event!");
       }
-    } catch (error) {
+    } catch  {
       toast.error("An error occurred while saving the event.");
     }
   };

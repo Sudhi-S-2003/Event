@@ -55,8 +55,12 @@ const LoginForm: React.FC = () => {
 
       toast.success("Login successful!");
       router.push("/dashboard");
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unknown error occurred!");
+      }
     } finally {
       setLoading(false);
     }
@@ -116,7 +120,7 @@ const LoginForm: React.FC = () => {
 
         {/* Register Link */}
         <p className="text-center text-gray-600 mt-4">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/register" className="text-indigo-500 font-semibold hover:underline">
             Register here
           </Link>

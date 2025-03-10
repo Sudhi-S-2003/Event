@@ -2,7 +2,7 @@
 import { FC } from "react";
 import { format } from "date-fns";
 import Image from "next/image";
-interface EventCardProps {
+export interface EventCardProps {
   _id: string;
   title: string;
   eventDate: string;

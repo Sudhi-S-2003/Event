@@ -1,10 +1,10 @@
 import Joi from "joi";
 
 export const eventSchema = Joi.object({
-  title: Joi.string().min(3).max(100).required(),
-  description: Joi.string().min(10).max(1000).required(),
+  title: Joi.string().min(2).max(100).required(),
+  description: Joi.string().min(2).max(1000).required(),
   eventDate: Joi.date().iso().required(),
-  location: Joi.string().min(3).max(200).required(),
+  location: Joi.string().min(2).max(200).required(),
   type: Joi.string().valid("public", "private").required(),
 });
 

@@ -2,16 +2,30 @@
 import { FC, useState, useEffect } from "react";
 import EventList from "./EventList";
 
+// Define the Event type based on your event data structure
+export interface Event {
+  _id: string;
+  title: string;
+  eventDate: string;
+  location: string;
+  description: string;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+  user: string;
+  allowedUsers: string[];
+  image?: string;
+}
+
 interface EventContainerProps {
   type: string;
 }
 
 const EventContainer: FC<EventContainerProps> = ({ type }) => {
   const [loading, setLoading] = useState(false);
-  const [eventsData, setEventYourData] = useState<any>({});
+  const [eventsData, setEventYourData] = useState<{ [key: string]: Event[] }>({});
   const [error, setError] = useState("");
 
-  // Fetch events based on the type passed in as a prop
   const fetchEvents = async (type: string) => {
     try {
       setLoading(true);
@@ -19,7 +33,7 @@ const EventContainer: FC<EventContainerProps> = ({ type }) => {
 
       if (!res.ok) throw new Error(`Failed to fetch ${type} events`);
 
-      const { events } = await res.json();
+      const { events }: { events: Event[] } = await res.json();
       setEventYourData((prev) => ({ ...prev, [type]: events }));
       setError("");
     } catch (error) {
@@ -34,13 +48,10 @@ const EventContainer: FC<EventContainerProps> = ({ type }) => {
     if (type) {
       fetchEvents(type);
     }
-  }, [type]); // Fetch events when 'type' changes
+  }, [type]);
 
   return (
     <div className="min-h-screen bg-gray-100 px-6 py-12">
-      {/* <h1 className="text-3xl font-bold text-indigo-700 text-center mb-8">
-        {type.toUpperCase()} Events
-      </h1> */}
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
       <EventList EventData={eventsData[type] || []} />

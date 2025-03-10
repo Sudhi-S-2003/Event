@@ -3,8 +3,9 @@ import type { NextRequest } from "next/server";
 import { authenticateUser } from "@/lib/auth";
 import { CreateEvent } from "@/helper/event/CreateEvent";
 import { GetUserEvent } from "@/helper/event/GetUserEvent";
-import { UpdateEvent } from "@/helper/event/UpdateEvent"; 
+import { UpdateEvent } from "@/helper/event/UpdateEvent";
 import { GetUserEventByType } from "@/helper/event/GetUserEventByType";
+import mongoose from "mongoose";
 
 // 🔹 Universal function to handle authentication and response
 async function handleRequest(req: NextRequest, method: string) {
@@ -15,12 +16,12 @@ async function handleRequest(req: NextRequest, method: string) {
       return authResult; // Return unauthorized response if authentication fails
     }
     const { userId }: { userId: unknown } = authResult; // Destructuring with 'unknown' type
+    console.log(userId);
 
-    // Check if userId exists and is a string
-    if (typeof userId !== 'string') {
+    // Check if userId is a valid ObjectId string
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
-
 
     switch (method) {
       case "POST":
@@ -28,8 +29,7 @@ async function handleRequest(req: NextRequest, method: string) {
       case "GET":
         const eventType = req.nextUrl.searchParams.get("type"); // Get event ID from query params
         if (eventType) {
-          return await GetUserEventByType(userId, req, eventType); // ✅ Get user events
-
+          return await GetUserEventByType(userId, req, eventType); // ✅ Get user events by type
         }
         return await GetUserEvent(userId, req); // ✅ Get user events
       case "PATCH": // ✅ Added PATCH method for updating events

@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
 import EventModel from "@/models/Event";
+import mongoose from "mongoose";
 
-export async function GetUserEventByType(userId: string, req: NextRequest, eventType?: string) {
+export async function GetUserEventByType(userId: mongoose.Schema.Types.ObjectId, req: NextRequest, eventType?: string) {
   try {
     // 🔹 Connect to the database
     await connectDB();

@@ -24,5 +24,5 @@ export function middleware(req: NextRequest) {
 
 // 🔒 Protect routes
 export const config = {
-  matcher: ["/login", "/register", "/events", "/dashboard/:path*"],
+  matcher: ["/login", "/register", "/dashboard/:path*"],
 };

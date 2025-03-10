@@ -20,8 +20,9 @@ const EventDashboard = () => {
   const fetchEvents = async (type: string) => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/protected/event?type=${type}`);
-
+      const res = await fetch(`/api/protected/event?type=${type}`, {
+        credentials: "include", // ✅ Ensures HttpOnly cookies are sent
+      });
       if (!res.ok) throw new Error(`Failed to fetch ${type} events`);
 
       const { events } = await res.json();

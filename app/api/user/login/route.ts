@@ -4,7 +4,8 @@ import UserModel from "@/models/User";
 import PhoneModel from "@/models/Phone";
 import methodNotAllowed from "@/helper/methodNotAllowed";
 import { comparePassword } from "@/helper/passwordHelper";
-import crypto from "crypto"; 
+import crypto from "crypto";
+
 export async function GET() {
   return methodNotAllowed();
 }
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { identifier, password } = body; 
+    const { identifier, password } = body;
 
     let user = null;
 
@@ -38,31 +39,23 @@ export async function POST(req: Request) {
     }
 
     if (!user) {
-      return NextResponse.json(
-        { error: "🚫 Invalid email/phone or password!" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "🚫 Invalid email/phone or password!" }, { status: 401 });
     }
 
-    const sessionExpiration = 24 * 60 * 60 * 1000; 
-    
+    const sessionExpiration = 24 * 60 * 60 * 1000;
+
     const isSessionValid =
-      user.sessionToken && user.sessionCreatedAt && 
+      user.sessionToken &&
+      user.sessionCreatedAt &&
       new Date().getTime() - new Date(user.sessionCreatedAt).getTime() < sessionExpiration;
 
     if (isSessionValid) {
-      return NextResponse.json(
-        { error: "🚫 Already logged in. Please log out first!" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "🚫 Already logged in. Please log out first!" }, { status: 403 });
     }
 
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
-      return NextResponse.json(
-        { error: "🚫 Invalid email/phone or password!" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "🚫 Invalid email/phone or password!" }, { status: 401 });
     }
 
     const sessionToken = crypto.randomBytes(32).toString("hex");
@@ -71,18 +64,19 @@ export async function POST(req: Request) {
     user.sessionCreatedAt = new Date();
     await user.save();
 
-    return NextResponse.json(
-      {
-        message: "✅ Login successful! Welcome back! 🎉",
-        token: sessionToken,
-      },
-      { status: 200 }
-    );
+    // ✅ Set HttpOnly Cookie
+    const response = NextResponse.json({ message: "✅ Login successful! Welcome back! 🎉" });
+    response.cookies.set("token", sessionToken, {
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: sessionExpiration / 1000, // Convert to seconds
+    });
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
-    return NextResponse.json(
-      { error: "❌ Failed to login. Please try again!" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "❌ Failed to login. Please try again!" }, { status: 500 });
   }
 }

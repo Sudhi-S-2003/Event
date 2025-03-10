@@ -1,63 +1,83 @@
 "use client";
 import { useState, ChangeEvent, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 
 interface LoginData {
-  email: string;
+  identifier: string;
   password: string;
 }
 
 const LoginForm: React.FC = () => {
-  const [loginData, setLoginData] = useState<LoginData>({ email: "", password: "" });
+  const [loginData, setLoginData] = useState<LoginData>({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateIdentifier = (identifier: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\d{10}$/; // Assumes 10-digit phone numbers
+    return emailRegex.test(identifier) || phoneRegex.test(identifier);
+  };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    if (!loginData.email || !loginData.password) {
+
+    if (!loginData.identifier || !loginData.password) {
       toast.error("All fields are required!");
       return;
     }
 
-    if (!validateEmail(loginData.email)) {
-      toast.error("Invalid email address!");
+    if (!validateIdentifier(loginData.identifier)) {
+      toast.error("Invalid email or phone number!");
       return;
     }
 
-    if (loginData.password.length < 6) {
-      toast.error("Password must be at least 6 characters!");
-      return;
-    }
+    setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed!");
+      }
+
       toast.success("Login successful!");
-      setLoginData({ email: "", password: "" });
-    }, 1000);
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
       <h2 className="text-3xl font-bold text-indigo-700 mb-6">Login</h2>
-      
+
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-        {/* Email */}
+        {/* Identifier (Email or Phone) */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold">Email</label>
-          <input 
-            type="email" 
-            name="email" 
-            value={loginData.email} 
-            onChange={handleChange} 
-            className="w-full mt-1 p-2 border rounded focus:ring-2 focus:ring-indigo-500 outline-none text-black" 
-            placeholder="Enter your email" 
-            required 
+          <label className="block text-gray-700 font-semibold">Email or Phone</label>
+          <input
+            type="text"
+            name="identifier"
+            value={loginData.identifier}
+            onChange={handleChange}
+            className="w-full mt-1 p-2 border rounded focus:ring-2 focus:ring-indigo-500 outline-none text-black"
+            placeholder="Enter your email or phone"
+            required
           />
         </div>
 
@@ -65,19 +85,20 @@ const LoginForm: React.FC = () => {
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold">Password</label>
           <div className="relative">
-            <input 
-              type={showPassword ? "text" : "password"} 
-              name="password" 
-              value={loginData.password} 
-              onChange={handleChange} 
-              className="w-full mt-1 p-2 border rounded focus:ring-2 focus:ring-indigo-500 outline-none text-black" 
-              placeholder="Enter your password" 
-              required 
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={loginData.password}
+              onChange={handleChange}
+              className="w-full mt-1 p-2 border rounded focus:ring-2 focus:ring-indigo-500 outline-none text-black"
+              placeholder="Enter your password"
+              required
             />
-            <button 
-              type="button" 
-              className="absolute right-2 top-2 text-gray-500 hover:text-indigo-500 cursor-pointer"
+            <button
+              type="button"
+              className="absolute right-2 top-2 text-gray-500 hover:text-indigo-500"
               onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? "🙈" : "👁️"}
             </button>
@@ -85,8 +106,12 @@ const LoginForm: React.FC = () => {
         </div>
 
         {/* Submit Button */}
-        <button type="submit" className="w-full bg-indigo-500 text-white font-semibold py-2 rounded-lg hover:bg-indigo-600 transition">
-          Login
+        <button
+          type="submit"
+          className="w-full bg-indigo-500 text-white font-semibold py-2 rounded-lg hover:bg-indigo-600 transition"
+          disabled={loading}
+        >
+          {loading ? "Logging in..." : "Login"}
         </button>
 
         {/* Register Link */}

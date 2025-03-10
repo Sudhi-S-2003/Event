@@ -14,10 +14,10 @@ const connectDB = async () => {
     await mongoose.connect(MONGO_URI, {
       dbName: "EventNextApp",
     });
-    console.log("MongoDB Connected");
+    console.log("✅ MongoDB Connected");
   } catch (error) {
-    console.error("MongoDB Connection Error:", error);
-    process.exit(1);
+    console.error("❌ MongoDB Connection Error:", error);
+    throw new Error("Failed to connect to MongoDB"); 
   }
 };
 

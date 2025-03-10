@@ -4,7 +4,8 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-  sessionToken?: string; 
+  sessionToken?: string;
+  sessionCreatedAt?: Date;
 }
 
 const UserSchema: Schema = new Schema(
@@ -19,6 +20,6 @@ const UserSchema: Schema = new Schema(
 );
 
 const UserModel: Model<IUser> =
-  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+  mongoose.models?.User || mongoose.model<IUser>("User", UserSchema);
 
 export default UserModel;
